@@ -9,7 +9,7 @@
 
       <b-collapse id="nav-collapse" is-nav>
         <b-navbar-nav>
-          <b-nav-item a href="#welcome" to="/about" class="index">Inicio</b-nav-item>
+          <b-nav-item a href="#welcome" to="/" class="index">Inicio</b-nav-item>
         </b-navbar-nav>
 
         <!-- Right aligned nav items -->

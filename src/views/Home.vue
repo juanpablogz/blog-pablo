@@ -33,6 +33,9 @@ export default {
 };
 </script>
 <style scoped>
+.container {
+  text-align: center;
+}
 body {
   font-size: 62.5%;
 }
