@@ -1,18 +1,48 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div class="about">
+    <carousel />
+    <div class="container">
+      <!-- {{this.post}} -->
+      <div v-for="posts in this.post" :key="posts.id">
+        <h1>{{posts.title}}</h1>
+        <br />
+        <h6>{{posts.subtitle}}</h6>
+        <p>{{posts.body}}</p>
+        <p></p>
+      </div>
+    </div>
   </div>
 </template>
-
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
-
+import carousel from "../components/carousel";
+import axios from "axios";
 export default {
-  name: 'Home',
+  data() {
+    return {
+      post: []
+    };
+  },
   components: {
-    HelloWorld
+    carousel
+  },
+  mounted() {
+    axios.get("/posts").then(response => {
+      console.log(response.data);
+      this.post = response.data;
+    });
   }
-}
+};
 </script>
+<style scoped>
+body {
+  font-size: 62.5%;
+}
+
+h1 {
+  margin-top: 25px;
+  font-size: 2em; /* 2em = 2 x 10px = 20px */
+}
+p {
+  font-size: 1.4em; /* 1.4em x 10px = 14px */
+}
+</style>
