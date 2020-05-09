@@ -2,7 +2,6 @@
   <div class="about">
     <carousel />
     <div class="container">
-      <!-- {{this.post}} -->
       <div v-for="posts in this.post" :key="posts.id">
         <h1>{{posts.title}}</h1>
         <br />

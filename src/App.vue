@@ -15,7 +15,7 @@
         <!-- Right aligned nav items -->
         <b-navbar-nav class="ml-auto">
           <b-nav-form>
-            <b-button variant="link" to="sign-in">Tutoriales</b-button>
+            <b-button variant="link" to="/form">crear post</b-button>
             <b-button variant="link" to="sign-up">aprendiendo con</b-button>
           </b-nav-form>
         </b-navbar-nav>
@@ -37,7 +37,6 @@ export default {
     HelloWorld,
     carousel
   },
-  
 
   data: () => ({}),
   methods: {
