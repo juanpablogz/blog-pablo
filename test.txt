@@ -1,0 +1,234 @@
+import { get } from "svelte/store";
+import { appData, showDevice } from "../utils/Store";
+
+function value() {
+  return get(appData).model;
+}
+
+function toggle(visible) {
+  showDevice.set(visible);
+}
+
+function update(modelData) {
+  if (!modelData) {
+    throw new Error("Model Error: Missing data as parameter");
+  }
+  appData.update((data) => {
+    let mv
+    if(document.querySelector("model-viewer")){
+      mv = document.querySelector("model-viewer");
+    }
+    // const mv = document.querySelector("model-viewer");
+    // if (!mv) {
+    //   // throw new Error('model-viewer not found')
+    //   console.error('model-viewer not found')
+    //   return data;
+    // }
+
+    // Case: Multiple Models
+    if (data.model.multiple) {
+      if (modelData.default) {
+        data.model.default = modelData.default;
+        const modelName = modelData.default;
+        mv.setAttribute("src", data.model.multiple[modelName].glb);
+        mv.setAttribute("ios-src", data.model.multiple[modelName].ios);
+      }
+      if (modelData.name) {
+        const modelName = modelData.name;
+        if (modelData.glb || modelData.ios) {
+          if (modelData.glb) {
+            data.model.multiple[modelName].glb = modelData.glb;
+          }
+          if (modelData.ios) {
+            data.model.multiple[modelName].ios = modelData.ios;
+          }
+        } else {
+          throw new Error("Missing model data");
+        }
+      }
+    }
+
+    // Case: Single Model
+    console.log('Updating model', modelData.glb)
+    if (modelData.glb && modelData.glb!==data.model.glb) {
+      data.model.glb = modelData.glb;
+      mv.setAttribute("src", modelData.glb);
+    }
+
+    if (modelData.ios) {
+      data.model.ios = modelData.ios;
+      mv.setAttribute("ios-src", modelData.ios);
+    }
+
+    if (modelData.loader) {
+      data['model-loader'] = modelData.loader;
+    }
+
+    // Extra params for model-viewer
+    
+    if (!data.model.limits) {
+      // init params if they are not available yet
+      data.model.limits = {};
+    } 
+
+    if (typeof modelData.enableControls === "boolean"){
+      data.model.limits.enabled = modelData.enableControls;
+    }
+
+    let array_min
+    let array_max
+
+    if(data.model.limits.minCameraOrbit){
+      console.log('entra 1')
+      array_min = data.model.limits.minCameraOrbit.split(' ')
+    } else {
+      array_min = ['-Infinity', '22.5deg', 'auto']
+    }
+
+    if(modelData.minAzimuthAngle){
+      console.log('entra 2')
+      array_min[0] = modelData.minAzimuthAngle.toString() + 'deg'
+    } else if (modelData.minOrbitAngle){
+      array_min[1] = modelData.minOrbitAngle.toString() + 'deg'
+    } else if (modelData.minDistance){
+      array_min[2] = modelData.minDistance.toString() + 'cm'
+    }
+    data.model.limits.minCameraOrbit = array_min[0] + ' ' + array_min[1] + ' ' + array_min[2]
+    if(mv) {
+      mv.setAttribute('min-camera-orbit', data.model.limits.minCameraOrbit)
+    } 
+
+    if(data.model.limits.maxCameraOrbit){
+      array_max = data.model.limits.maxCameraOrbit.split(' ')
+    } else {
+      array_max = ['Infinity', '157.5.5deg', 'auto']
+    }
+
+    if(modelData.maxAzimuthAngle){
+      array_max[0] = modelData.maxAzimuthAngle.toString() + 'deg'
+    } else if (modelData.maxOrbitAngle){
+      array_max[1] = modelData.maxOrbitAngle.toString() + 'deg'
+    } else if (modelData.maxDistance){
+      array_max[2] = modelData.maxDistance.toString() + 'cm'
+    }
+    data.model.limits.maxCameraOrbit = array_max[0] + ' ' + array_max[1] + ' ' + array_max[2]
+    if(mv) {
+      mv.setAttribute('max-camera-orbit', data.model.limits.maxCameraOrbit)
+    } 
+
+    // if(modelData.minAzimuthAngle){
+    //   if(data.model.limits.minCameraOrbit){
+    //     array_min = data.model.limits.minCameraOrbit.split(' ')
+    //     array_min[0] = modelData.minAzimuthAngle.toString() + 'deg'
+    //   } else {
+    //     array_min = [ modelData.minAzimuthAngle.toString() + 'deg', '22.5deg', 'auto' ]
+    //   }
+    //   data.model.limits.minCameraOrbit = array_min[0] + ' ' + array_min[1] + ' ' + array_min[2]
+    //   if(appData['model-loader'] === 'model-viewer') {
+    //     mv.setAttribute('min-camera-orbit', data.model.limits.minCameraOrbit)
+    //   } 
+    // }
+
+    // if(modelData.maxAzimuthAngle){
+    //   if(data.model.limits.maxCameraOrbit){
+    //     array_max = data.model.limits.maxCameraOrbit.split(' ')
+    //     array_max[0] = modelData.maxAzimuthAngle.toString() + 'deg'
+    //   } else {
+    //     array_max = [ modelData.maxAzimuthAngle.toString() + 'deg', '157.5deg', 'auto' ]
+    //   }
+    //   data.model.limits.maxCameraOrbit = array_max[0] + ' ' + array_max[1] + ' ' + array_max[2]
+    //   console.log(data.model.limits.maxCameraOrbit
+    //     )
+    //   if(mv) {
+    //     mv.setAttribute('max-camera-orbit', data.model.limits.maxCameraOrbit)
+    //   } 
+    // }
+
+    // if(modelData.minOrbitAngle){
+    //   console.log('hola')
+    //   if(data.model.limits.minCameraOrbit){
+    //     array_min = data.model.limits.minCameraOrbit.split(' ')
+    //     array_min[1] = modelData.minOrbitAngle.toString() + 'deg'
+    //   } else {
+    //     array_min = [ '-Infinity', modelData.minOrbitAngle.toString() + 'deg', 'auto' ]
+    //   }
+    //   data.model.limits.minCameraOrbit = array_min[0] + ' ' + array_min[1] + ' ' + array_min[2]
+    //   console.log(data.model.limits.minCameraOrbit, 'min')
+    //   if(mv) {
+    //     mv.setAttribute('min-camera-orbit', data.model.limits.minCameraOrbit)
+    //   } 
+    // }
+
+    // if(modelData.maxOrbitAngle){
+    //   if(data.model.limits.maxCameraOrbit){
+    //     array_max = data.model.limits.maxCameraOrbit.split(' ')
+    //     array_max[1] = modelData.maxOrbitAngle.toString() + 'deg'
+    //   } else {
+    //     array_max = [ 'Infinity', modelData.maxOrbitAngle.toString() + 'deg', 'auto' ]
+    //   }
+    //   data.model.limits.maxCameraOrbit = array_max[0] + ' ' + array_max[1] + ' ' + array_max[2]
+    //   if(mv) {
+    //     mv.setAttribute('max-camera-orbit', data.model.limits.maxCameraOrbit)
+    //   } 
+    // }
+
+    // if(modelData.minDistance){
+    //   if(data.model.limits.minCameraOrbit){
+    //     array_min = data.model.limits.minCameraOrbit.split(' ')
+    //     array_min[2] = modelData.minDistance.toString() + 'cm'
+    //   } else {
+    //     array_min = [ 'auto', '22.5deg' , modelData.minDistance.toString() + 'cm' ]
+    //   }
+    //   data.model.limits.minCameraOrbit = array_min[0] + ' ' + array_min[1] + ' ' + array_min[2]
+    //   if(mv) {
+    //     mv.setAttribute('min-camera-orbit', data.model.limits.minCameraOrbit)
+    //   } 
+    // }
+
+    // if(modelData.maxDistance){
+    //   if(data.model.limits.maxCameraOrbit){
+    //     array_max = data.model.limits.maxCameraOrbit.split(' ')
+    //     array_max[2] = modelData.maxDistance.toString() + 'cm'
+    //   } else {
+    //     array_max = [ 'auto', '157.5deg', modelData.maxDistance.toString() + 'cm' ]
+    //   }
+    //   data.model.limits.maxCameraOrbit = array_max[0] + ' ' + array_max[1] + ' ' + array_max[2]
+    //   if(mv) {
+    //     mv.setAttribute('max-camera-orbit', data.model.limits.maxCameraOrbit)
+    //   } 
+    // }
+
+
+    const validaAttributes = [
+      'exposure',
+      'environment-image',
+      'skybox-image',
+      'shadow-intensity',
+      'camera-target',
+      'camera-orbit',
+      'max-camera-orbit',
+      'min-camera-orbit',
+      'max-field-of-view',
+			'min-field-of-view'
+    ]
+
+    validaAttributes.forEach(param => {
+      const paramCamel = param.replace(/-./g, (m) => m[1].toUpperCase())
+      if (modelData[paramCamel]) {
+        // Update current model-viewer
+        if(mv) {
+          console.log(modelData[paramCamel])
+          mv.setAttribute(param, modelData[paramCamel])
+        } 
+        // Update JSON data
+        data.model.limits[param] = modelData[paramCamel]
+      }
+    })
+
+    return data;
+  });
+}
+
+
+
+export { value, update, toggle };
